@@ -1,17 +1,17 @@
 import Cookies from 'js-cookie'
 
 const Auth = {
-  settoken: (token, refreshToken) => {
+  setToken: (token, refreshToken) => {
     Cookies.set('token', token)
     Cookies.set('refreshToken', refreshToken)
   },
-  gettoken: () => {
+  getToken: () => {
     return Cookies.get('token') || ''
   },
   getrefreshToken: () => {
     return Cookies.get('refreshToken') || ''
   },
-  removetoken: () => {
+  removeToken: () => {
     Cookies.remove('token')
     Cookies.remove('refreshToken')
   }
