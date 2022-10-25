@@ -8,7 +8,7 @@ const Auth = {
   getToken: () => {
     return Cookies.get('token') || ''
   },
-  getrefreshToken: () => {
+  getRefreshToken: () => {
     return Cookies.get('refreshToken') || ''
   },
   removeToken: () => {
