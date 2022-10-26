@@ -18,20 +18,28 @@ const Login = (props) => {
     password: yup.string().required()
   })
 
-  const { handleSubmit, handleChange, setFieldValue, handleBlur, values, touched, errors } =
-    useFormik({
-      initialValues: {
-        userName: '',
-        password: ''
-      },
-      validationSchema: schema,
-      enableReinitialize: true,
-      onSubmit: (values) => onSubmit(values)
-    })
+  const {
+    handleSubmit,
+    handleChange,
+    resetForm,
+    setFieldValue,
+    handleBlur,
+    values,
+    touched,
+    errors
+  } = useFormik({
+    initialValues: {
+      userName: '',
+      password: ''
+    },
+    validationSchema: schema,
+    enableReinitialize: true,
+    onSubmit: (values) => onSubmit(values)
+  })
   const onSubmit = async (values) => {
     try {
-    setIsLoading(true)
-
+      setIsLoading(true)
+      resetForm()
       const payload = { ...values }
       const result = await Services.AuthService.signIn(payload)
       let isSuccess = false
@@ -50,7 +58,7 @@ const Login = (props) => {
       }
     } catch (error) {
       console.log(error)
-      const { data = {} } = error.response.data
+      const { data = {} } = error.response
       Swal.fire({
         icon: 'error',
         title: 'Login',
