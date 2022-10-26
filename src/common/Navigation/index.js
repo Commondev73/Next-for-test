@@ -12,7 +12,7 @@ const Navigation = (props) => {
 
   const logout = () => {
     Auth.removeToken()
-    router.push('/')
+    router.reload('/')
   }
 
   return (
