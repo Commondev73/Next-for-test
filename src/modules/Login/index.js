@@ -50,7 +50,7 @@ const Login = (props) => {
       }
     } catch (error) {
       console.log(error)
-      const { data = {} } = error.response.data
+      const { data = {} } = error.response
       Swal.fire({
         icon: 'error',
         title: 'Login',
