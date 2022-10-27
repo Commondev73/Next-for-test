@@ -1,13 +1,18 @@
+/* eslint-disable @next/next/no-img-element */
 import React, { useState } from 'react'
 import Swal from 'sweetalert2'
+import personImage from '../../assets/images/person.png'
 import Loading from '../../common/Loading'
 import Services from '../../services'
 import styles from './Register.module.scss'
+import loadImage from 'blueimp-load-image'
 import * as yup from 'yup'
 import { useRouter } from 'next/router'
 import { isEmpty } from 'lodash'
 import { useFormik } from 'formik'
 import { Form, Button, Row, Col } from 'react-bootstrap'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faImage } from '@fortawesome/free-solid-svg-icons'
 
 const Register = (props) => {
   const router = useRouter()
@@ -45,12 +50,30 @@ const Register = (props) => {
       onSubmit: (values) => onSubmit(values)
     })
 
+  const handleUploadFile = async (e) => {
+    const file = e.target.files[0]
+    setFieldValue('photo', file)
+    if (FILE_TYPE.includes(file.type)) {
+      const imageData = await loadImage(file, {
+        maxWidth: 200,
+        maxHeight: 200,
+        canvas: true
+      })
+      const base64 = imageData.image.toDataURL('image/jpeg', '0.75')
+      setPhoto(base64)
+    }
+  }
+
+  const ImagePreview = () => {
+    return photo ? photo : personImage.src
+  }
+
   const onSubmit = async (values) => {
     try {
       setIsLoading(true)
       const payload = { ...values }
       delete payload.confirmPassword
-      payload.photo = photo.src ? photo.src : undefined
+      payload.photo = photo ? photo : undefined
       const result = await Services.AuthService.signUp(payload)
       let isSuccess = false
       if (!isEmpty(result.data)) {
@@ -165,6 +188,31 @@ const Register = (props) => {
                 isInvalid={errors.lastName}
               />
               <Form.Control.Feedback type="invalid">{errors.lastName}</Form.Control.Feedback>
+            </Form.Group>
+
+            <Form.Group>
+              <div className="d-flex justify-content-center">
+                <div className={styles.registerFormImage}>
+                  <div className={styles.registerFormUpload}>
+                    <input
+                      id="photo"
+                      type="file"
+                      name="photo"
+                      accept={FILE_TYPE.toString()}
+                      onChange={handleUploadFile}
+                    />
+                    <label htmlFor="photo">
+                      <FontAwesomeIcon icon={faImage} size='2xs'/>
+                    </label>
+                  </div>
+                  <div className={styles.registerFormImagePreview}>
+                    <img src={ImagePreview()} alt="avatar" />
+                  </div>
+                </div>
+              </div>
+              {errors.photo && (
+                <div className="text-center mb-3 invalid-feedback d-block">{errors.photo}</div>
+              )}
             </Form.Group>
 
             <Button type="submit">Register</Button>
