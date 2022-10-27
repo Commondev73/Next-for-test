@@ -6,7 +6,7 @@ export const EndpointConst = {
     SIGN_IN: `${baseUrl}/api/auth/sign-in`,
     REFRESH_TOKEN: `${baseUrl}/api/auth/refresh-token`,
     GET_PROFILE: `${baseUrl}/api/auth/profile`,
-    GET_PHOTO: `${baseUrl}/api/auth/upload`,
+    GET_PHOTO: `${baseUrl}/api/upload`,
     UPDATE_PROFILE: `${baseUrl}/api/auth/update-profile`
   },
 }

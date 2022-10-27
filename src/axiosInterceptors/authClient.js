@@ -44,6 +44,10 @@ axios.interceptors.response.use(
       if (refreshTokenExp < now) {
         Auth.removeToken()
         window.location = '/login'
+      } else {
+        if (!error.config.url.includes('/api/auth/login')) {
+          window.location = '/'
+        }
       }
     }
     return Promise.reject(error)
