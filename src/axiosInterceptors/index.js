@@ -1,4 +1,4 @@
 import AuthClient from './authClient'
 import AuthServer from './authServer'
 
-export { AuthClient, AuthServer }
+module.exports = { AuthClient, AuthServer }

@@ -11,7 +11,7 @@ const signIn = async (payload) => {
 }
 
 const refreshToken = async (refreshToken) => {
-  return await AuthClient.get(EndpointConst.AUTH.REFRESH_TOKEN, {
+  return await axios.get(EndpointConst.AUTH.REFRESH_TOKEN, {
     headers: {
       Authorization: refreshToken
     }
@@ -19,7 +19,7 @@ const refreshToken = async (refreshToken) => {
 }
 
 const getProfile = async (options) => {
-  return await AuthServer.get(EndpointConst.AUTH.GET_PROFILE, options)
+  return await AuthClient.get(EndpointConst.AUTH.GET_PROFILE, options)
 }
 
 const updateProfile = async (payload) => {
