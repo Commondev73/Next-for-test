@@ -6,7 +6,6 @@ import Loading from '../../common/Loading'
 import Services from '../../services'
 import styles from './Profile.module.scss'
 import loadImage from 'blueimp-load-image'
-import WithUserLogin from '../../hoc/WithUserLogin'
 import * as yup from 'yup'
 import { useRouter } from 'next/router'
 import { isEmpty } from 'lodash'
@@ -38,7 +37,7 @@ const Profile = (props) => {
       initialValues: {
         firstName: userProfile.firstName || '',
         lastName: userProfile.lastName || '',
-        photo: userProfile?.photo || ''
+        photo: ''
       },
       validationSchema: schema,
       enableReinitialize: true,
@@ -79,8 +78,8 @@ const Profile = (props) => {
   const ImagePreview = () => {
     let src = personImage.src
     switch (true) {
-      case props.profile.photo && !photo:
-        src = `${EndpointConst.AUTH.GET_PHOTO}/${props.profile.photo}`
+      case userProfile.photo && !photo:
+        src = `${EndpointConst.AUTH.GET_PHOTO}/${userProfile.photo}`
         break
       case !!photo:
         src = photo
@@ -203,4 +202,4 @@ const Profile = (props) => {
   )
 }
 
-export default WithUserLogin(Profile)
+export default Profile
