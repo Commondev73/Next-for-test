@@ -15,7 +15,7 @@ const Navigation = (props) => {
 
   const logout = () => {
     Auth.removeToken()
-    router.reload('/')
+    window.location.href = '/'
   }
 
   const ImagePreview = () => {

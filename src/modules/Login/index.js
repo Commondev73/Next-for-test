@@ -47,7 +47,7 @@ const Login = (props) => {
         const { data = {} } = result.data
         isSuccess = true
         Auth.setToken(data.token, data.refreshToken)
-        return router.push('/')
+        return router.reload()
       }
       if (!isSuccess) {
         Swal.fire({

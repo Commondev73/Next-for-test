@@ -109,7 +109,7 @@ const Profile = (props) => {
             title: 'Update profile',
             text: `Successful profile`
           }).then(() => {
-            return router.push('/')
+            return router.reload()
           })
         }
       }
@@ -125,7 +125,7 @@ const Profile = (props) => {
       const { data = {} } = error.response
       Swal.fire({
         icon: 'error',
-        title: 'Register',
+        title: 'Update profile',
         text: data.message || 'error'
       })
     } finally {
