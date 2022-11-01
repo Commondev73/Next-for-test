@@ -1,10 +1,10 @@
 /* eslint-disable @next/next/no-img-element */
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Swal from 'sweetalert2'
 import personImage from '../../assets/images/person.png'
 import Loading from '../../common/Loading'
 import Services from '../../services'
-import styles from './Register.module.scss'
+import styles from './Profile.module.scss'
 import loadImage from 'blueimp-load-image'
 import * as yup from 'yup'
 import { useRouter } from 'next/router'
@@ -13,9 +13,12 @@ import { useFormik } from 'formik'
 import { Form, Button, Row, Col } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faImage } from '@fortawesome/free-solid-svg-icons'
+import { EndpointConst } from '../../constants'
+import Auth from '../../auth'
 
-const Register = (props) => {
+const Profile = (props) => {
   const router = useRouter()
+  const [userProfile, setUserProfile] = useState({})
   const [isLoading, setIsLoading] = useState(false)
   const [photo, setPhoto] = useState('')
   const FILE_SIZE = 1000 * 1000 * 2 // 2MB
@@ -23,12 +26,6 @@ const Register = (props) => {
   const schema = yup.object().shape({
     firstName: yup.string().required(),
     lastName: yup.string().required(),
-    userName: yup.string().min(8).required(),
-    password: yup.string().min(8).required(),
-    confirmPassword: yup
-      .string()
-      .oneOf([yup.ref('password'), null], 'Passwords do not match')
-      .required(),
     photo: yup
       .mixed()
       .test('fileSize', 'Max file size 2 MB', (file) => !file || file.size <= FILE_SIZE)
@@ -38,17 +35,31 @@ const Register = (props) => {
   const { handleSubmit, handleChange, setFieldValue, handleBlur, values, touched, errors } =
     useFormik({
       initialValues: {
-        firstName: '',
-        lastName: '',
-        userName: '',
-        password: '',
-        confirmPassword: '',
-        photo: null
+        firstName: userProfile.firstName || '',
+        lastName: userProfile.lastName || '',
+        photo: ''
       },
       validationSchema: schema,
       enableReinitialize: true,
       onSubmit: (values) => onSubmit(values)
     })
+
+  useEffect(() => {
+    fetchData()
+  }, [])
+
+  const fetchData = async () => {
+    setIsLoading(true)
+    try {
+      const result = await Services.AuthService.getProfile()
+      if (!isEmpty(result.data)) {
+        const { data = {} } = result.data
+        setUserProfile(data)
+      }
+    } catch (error) {}
+
+    setIsLoading(false)
+  }
 
   const handleUploadFile = async (e) => {
     const file = e.target.files[0]
@@ -65,35 +76,47 @@ const Register = (props) => {
   }
 
   const ImagePreview = () => {
-    return photo ? photo : personImage.src
+    let src = personImage.src
+    switch (true) {
+      case userProfile.photo && !photo:
+        src = `${EndpointConst.AUTH.GET_PHOTO}/${userProfile.photo}`
+        break
+      case !!photo:
+        src = photo
+        break
+      default:
+        src = personImage.src
+        break
+    }
+    return src
   }
 
   const onSubmit = async (values) => {
     try {
       setIsLoading(true)
       const payload = { ...values }
-      delete payload.confirmPassword
       payload.photo = photo ? photo : undefined
-      const result = await Services.AuthService.signUp(payload)
+      const result = await Services.AuthService.updateProfile(payload)
       let isSuccess = false
       if (!isEmpty(result.data)) {
         const { data = {} } = result.data
         console.log(data)
         if (data.message === 'success') {
           isSuccess = true
+          Auth.setToken(data.token, data.refreshToken)
           Swal.fire({
             icon: 'success',
-            title: 'Register',
-            text: `Successful registration`
+            title: 'Update profile',
+            text: `Successful profile`
           }).then(() => {
-            return router.push('/')
+            return router.reload()
           })
         }
       }
       if (!isSuccess) {
         Swal.fire({
           icon: 'error',
-          title: 'Register',
+          title: 'Update profile',
           text: 'error'
         })
       }
@@ -102,7 +125,7 @@ const Register = (props) => {
       const { data = {} } = error.response
       Swal.fire({
         icon: 'error',
-        title: 'Register',
+        title: 'Update profile',
         text: data.message || 'error'
       })
     } finally {
@@ -111,53 +134,34 @@ const Register = (props) => {
   }
 
   return (
-    <div className={styles.registerContainer}>
+    <div className={styles.profileContainer}>
       <Loading show={isLoading} />
-      <Row className={styles.registerWrapper}>
+      <Row className={styles.profileWrapper}>
         <Col md={{ span: 4, offset: 4 }}>
-          <Form className={styles.registerForm} noValidate onSubmit={handleSubmit}>
-            <Form.Group className="mb-3">
-              <Form.Label>Username</Form.Label>
-              <Form.Control
-                placeholder="Username"
-                name="userName"
-                value={values.userName}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                isValid={touched.userName && !errors.userName}
-                isInvalid={errors.userName}
-              />
-              <Form.Control.Feedback type="invalid">{errors.userName}</Form.Control.Feedback>
-            </Form.Group>
-
-            <Form.Group className="mb-3">
-              <Form.Label>Password</Form.Label>
-              <Form.Control
-                placeholder="Password"
-                name="password"
-                type="password"
-                value={values.password}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                isValid={touched.password && !errors.password}
-                isInvalid={errors.password}
-              />
-              <Form.Control.Feedback type="invalid">{errors.password}</Form.Control.Feedback>
-            </Form.Group>
-
-            <Form.Group className="mb-3">
-              <Form.Label>Confirm password</Form.Label>
-              <Form.Control
-                placeholder="Confirm password"
-                type="password"
-                name="confirmPassword"
-                onChange={handleChange}
-                onBlur={handleBlur}
-                value={values.confirmPassword}
-                isValid={touched.confirmPassword && !errors.confirmPassword}
-                isInvalid={errors.confirmPassword}
-              />
-              <Form.Control.Feedback type="invalid">{errors.confirmPassword}</Form.Control.Feedback>
+          <Form className={styles.profileForm} noValidate onSubmit={handleSubmit}>
+            <Form.Group>
+              <div className="d-flex justify-content-center">
+                <div className={styles.profileFormImage}>
+                  <div className={styles.profileFormUpload}>
+                    <input
+                      id="photo"
+                      type="file"
+                      name="photo"
+                      accept={FILE_TYPE.toString()}
+                      onChange={handleUploadFile}
+                    />
+                    <label htmlFor="photo">
+                      <FontAwesomeIcon icon={faImage} size="2xs" />
+                    </label>
+                  </div>
+                  <div className={styles.profileFormImagePreview}>
+                    <img src={ImagePreview()} alt="avatar" />
+                  </div>
+                </div>
+              </div>
+              {errors.photo && (
+                <div className="text-center mb-3 invalid-feedback d-block">{errors.photo}</div>
+              )}
             </Form.Group>
 
             <Form.Group className="mb-3">
@@ -190,32 +194,7 @@ const Register = (props) => {
               <Form.Control.Feedback type="invalid">{errors.lastName}</Form.Control.Feedback>
             </Form.Group>
 
-            <Form.Group>
-              <div className="d-flex justify-content-center">
-                <div className={styles.registerFormImage}>
-                  <div className={styles.registerFormUpload}>
-                    <input
-                      id="photo"
-                      type="file"
-                      name="photo"
-                      accept={FILE_TYPE.toString()}
-                      onChange={handleUploadFile}
-                    />
-                    <label htmlFor="photo">
-                      <FontAwesomeIcon icon={faImage} size='2xs'/>
-                    </label>
-                  </div>
-                  <div className={styles.registerFormImagePreview}>
-                    <img src={ImagePreview()} alt="avatar" />
-                  </div>
-                </div>
-              </div>
-              {errors.photo && (
-                <div className="text-center mb-3 invalid-feedback d-block">{errors.photo}</div>
-              )}
-            </Form.Group>
-
-            <Button type="submit">Register</Button>
+            <Button type="submit">Update</Button>
           </Form>
         </Col>
       </Row>
@@ -223,4 +202,4 @@ const Register = (props) => {
   )
 }
 
-export default Register
+export default Profile

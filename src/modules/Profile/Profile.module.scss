@@ -1,6 +1,6 @@
 @import '../../../styles/variables.scss';
 
-.registerContainer {
+.profileContainer {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -12,11 +12,11 @@
   background: -moz-linear-gradient(top left, #5ec9d9, #4b39e1);
   background: linear-gradient(to bottom right, #5ec9d9, #4b39e1);
 
-  .registerWrapper {
+  .profileWrapper {
     width: 100%;
   }
 
-  .registerForm {
+  .profileForm {
     padding: 1rem;
     border-radius: 0.25rem;
     background-color: $white;
@@ -24,11 +24,11 @@
       rgba(0, 0, 0, 0.12) 0px 4px 6px, rgba(0, 0, 0, 0.17) 0px 12px 13px,
       rgba(0, 0, 0, 0.09) 0px -3px 5px;
 
-    .registerFormImage {
+    .profileFormImage {
       position: relative;
       margin-bottom: 1rem;
 
-      .registerFormUpload {
+      .profileFormUpload {
         position: absolute;
         right: 0.5rem;
         z-index: 1;
@@ -61,7 +61,7 @@
           }
         }
       }
-      .registerFormImagePreview {
+      .profileFormImagePreview {
         border-radius: 50%;
         border: 5px solid $white;
         box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
